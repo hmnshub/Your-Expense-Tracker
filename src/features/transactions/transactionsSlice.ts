@@ -56,6 +56,11 @@ const transactionsSlice = createSlice({
   reducers: {
     addTransaction: (state, action: PayloadAction<Transaction>) => {
       state.items.unshift(action.payload);
+      AsyncStorage.setItem('transactions', JSON.stringify(state.items));
+    },
+    removeTransaction: (state, action: PayloadAction<string>) => {
+      state.items = state.items.filter(item => item.id !== action.payload);
+      AsyncStorage.setItem('transactions', JSON.stringify(state.items)); // Update storage immediately
     },
   },
   extraReducers: (builder) => {
@@ -103,5 +108,5 @@ const transactionsSlice = createSlice({
   },
 });
 
-export const { addTransaction } = transactionsSlice.actions;
+export const { addTransaction, removeTransaction } = transactionsSlice.actions;
 export default transactionsSlice.reducer;

@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useAppSelector } from '../../app/store/hooks';
+import { useAppSelector, useAppDispatch } from '../../app/store/hooks';
 import { useNavigation } from '@react-navigation/native';
+import { removeTransaction } from '../transactions/transactionsSlice';
 
 const DashboardScreen = () => {
   const navigation = useNavigation<any>();
+  const dispatch = useAppDispatch();
   const { items } = useAppSelector(state => state.transactions);
 
   const { totalSpending, categoryTotals, recentTransactions } = useMemo(() => {
@@ -63,11 +65,19 @@ const DashboardScreen = () => {
         <Text style={styles.sectionTitle}>Recent Transactions</Text>
         {recentTransactions.length > 0 ? recentTransactions.map(tx => (
           <View key={tx.id} style={styles.txRow}>
-            <View>
+            <View style={styles.txInfo}>
               <Text style={styles.txDesc}>{tx.description}</Text>
               <Text style={styles.txCat}>{tx.category}</Text>
             </View>
-            <Text style={styles.txAmount}>${Number(tx.amount).toFixed(2)}</Text>
+            <View style={styles.txActions}>
+              <Text style={styles.txAmount}>${Number(tx.amount).toFixed(2)}</Text>
+              <TouchableOpacity 
+                  style={styles.deleteButton} 
+                  onPress={() => dispatch(removeTransaction(tx.id))}
+                >
+                  <Text style={styles.deleteText}>X</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )) : <Text style={styles.emptyText}>No recent transactions.</Text>}
       </View>
@@ -90,9 +100,13 @@ const styles = StyleSheet.create({
   categoryName: { fontSize: 16, color: '#4B5563', fontWeight: '600' },
   categoryAmount: { fontSize: 16, fontWeight: '800', color: '#111827' },
   txRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  txInfo: { flex: 1, paddingRight: 8 },
+  txActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   txDesc: { fontSize: 16, fontWeight: '700', color: '#111827' },
   txCat: { fontSize: 13, color: '#9CA3AF', marginTop: 4, fontWeight: '600' },
   txAmount: { fontSize: 16, fontWeight: '800', color: '#111827' },
+  deleteButton: { backgroundColor: '#FEE2E2', width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+  deleteText: { color: '#EF4444', fontWeight: '800', fontSize: 12 },
   emptyText: { color: '#9CA3AF', fontStyle: 'italic', textAlign: 'center', marginVertical: 10 }
 });
 
